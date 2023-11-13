@@ -1,0 +1,49 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    {% include "navbar.html.twig" %}
+
+    <h4 class="text-center my-5">{{ tableTitle }}</h4>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Content</th>
+            <th>Picture</th>
+            <th>Expiration date</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for notice in notices %}
+            <tr>
+                <td>{{ notice.title }}</td>
+                <td>
+                    {% if notice.description|length > 20 %}
+                        {{ notice.description|slice(0, 20) }}...
+                    {% else %}
+                        {{ notice.description }}
+                    {% endif %}
+                </td>
+                <td><a href="{{ asset('uploads/images/' ~ notice.image) }}">View image (jpg)</a></td>
+                <td>{{ notice.expiration|date("Y-m-d") }}</td>
+                <td>
+                    <a href="{{ path('notice_show', { 'id': notice.id }) }}">Show</a>
+
+{#                    {% if is_granted("ROLE_ADMIN") or (app.user.username is defined and app.user.username == notice.user ) %}#}
+{#                        <a href="{{ path('notice_edit', { 'id': notice.id }) }}"> | Edit</a>#}
+{#                        {{ form_start(delete_forms[loop.index0]) }}#}
+{#                        <button type="submit" value="Delete">Delete</button>#}
+{#                        {{ form_end(delete_forms[loop.index0]) }}#}
+{#                    {% endif %}#}
+{#                    {% if is_granted("ROLE_ADMIN") %}#}
+{#                        <a href="{{ path('comments_by_notice_id', { 'id': notice.id }) }}">Show comments</a>#}
+{#                    {% endif %}#}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

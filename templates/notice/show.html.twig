@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% include "navbar.html.twig" %}
+
+    <h4>Notice</h4>
+
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <th>Id</th>
+            <td>{{ notice.id }}</td>
+        </tr>
+{#        <tr>#}
+{#            <th>Issuer</th>#}
+{#            <td>{{ notice.user }}</td>#}
+{#        </tr>#}
+        <tr>
+            <th>Title</th>
+            <td>{{ notice.title }}</td>
+        </tr>
+        <tr>
+            <th>Content</th>
+            <td>{{ notice.description }}</td>
+        </tr>
+        {% if notice.image %}
+            <tr>
+                <th>Image</th>
+                <td><a href="{{ asset('uploads/images/' ~ notice.image) }}"><img
+                                src="{{ asset('uploads/images/' ~ notice.image) }}" width="200"
+                                title="View image (jpg)"></a>
+                </td>
+            </tr>
+        {% endif %}
+        <tr>
+            <th>Expiration</th>
+            <td>{{ notice.expiration|date("Y-m-d") }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+
+{#    {% if notice.comments %}#}
+{#        <div class="detailBox">#}
+
+{#        {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}#}
+{#            {{ form_start(form) }}#}
+{#            {{ form_row(form.commentText, {'label': 'Comment this Notice'}) }}#}
+{#            {{ form_widget(form) }}#}
+{#            <div class="form-group">#}
+{#                <input type="submit" value="Add comment" class="btn btn-primary"/>#}
+{#            </div>#}
+{#            {{ form_end(form) }}#}
+
+{#        {% endif %}#}
+{#            <div class="titleBox">#}
+{#                <label>Comments</label>#}
+{#            </div>#}
+{#        </div>#}
+{#        {% for comment in notice.comments %}#}
+
+{#            <div class="row d-flex justify-content-center">#}
+{#                <div class="col-md-8 col-lg-6">#}
+{#                    <div class="card shadow-0 border" style="background-color: #f0f2f5;">#}
+{#                        <div class="card-body p-4">#}
+
+{#                            <div class="card mb-4">#}
+{#                                <div class="card-body">#}
+{#                                    <p>{{ comment.commentText }}</p>#}
+
+{#                                    <div class="d-flex justify-content-between">#}
+{#                                        <div class="d-flex flex-row align-items-center">#}
+{#                                            <p class="small mb-0 ms-2">#}
+{#                                                {{ comment.user }}#}
+{#                                            </p>#}
+{#                                        </div>#}
+{#                                        <div class="d-flex flex-row align-items-center">#}
+{#                                            <i class="far fa-thumbs-up mx-2 fa-xs text-black" style="margin-top: -0.16rem;"></i>#}
+{#                                            <p class="small text-muted mb-0">{{ comment.creationDate|date("Y-m-d")}}</p>#}
+{#                                        </div>#}
+{#                                    </div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        {% endfor %}#}
+{#    {% endif %}#}
+{% endblock %}

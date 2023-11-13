@@ -6,14 +6,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class NoticesController extends AbstractController
+class CategoryController extends AbstractController
 {
-    #[Route('/notices', name: 'notices')]
+    #[Route('/category', name: 'app_category')]
     public function index(): Response
     {
-        $notices = ['ksiazka', 'grzyb', 'robak'];
-
-        return $this->render('index.html.twig', ['notices' => $notices]);
+        return $this->render('category/index.html.twig', [
+            'controller_name' => 'CategoryController',
+        ]);
     }
-
 }

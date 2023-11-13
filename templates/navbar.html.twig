@@ -1,0 +1,33 @@
+{#{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}#}
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <ul class="nav nav-pills flex-column">
+{#            {% if is_granted("ROLE_ADMIN") %}#}
+{#                {% include "AppBundle:LayoutController:admin_menu.html.twig" %}#}
+{#            {% endif %}#}
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('notice_new') }}">Add new notice</a>
+            </li>
+{#            {% if notice is defined %}#}
+{#            <li class="nav-item">#}
+{#                <a href="{{ path('app_notice_shownoticesbyuserid', {'id': notice.userId.user.id}) }}" class="nav-link">Your Notices</a>#}
+{#            </li>#}
+{#            {% endif %}#}
+{#            {% if is_granted("ROLE_ADMIN") == false %}#}
+            <li class="nav-item">
+                <a href="{{ path('notice_index')  }}" class="nav-link">All Notices</a>
+            </li>
+{#            {% endif %}#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" href="{{ path('homepage') }}">Homepage</a>#}
+{#            </li>#}
+        </ul>
+    </nav>
+{#{% else %}#}
+{#    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">#}
+{#        <ul class="nav nav-pills flex-column">#}
+{#            <li class="nav-item">#}
+{#                <a class="nav-link" href="{{ path('homepage') }}">Homepage</a>#}
+{#            </li>#}
+{#        </ul>#}
+{#    </nav>#}
+{#{% endif %}#}

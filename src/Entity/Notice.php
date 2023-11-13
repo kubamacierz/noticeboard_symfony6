@@ -3,16 +3,20 @@
 namespace App\Entity;
 
 use App\Repository\NoticeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: NoticeRepository::class)]
 class Notice
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private int $id;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id;
 
     #[ORM\Column(length: 255, nullable: false)]
     private string $title;
@@ -26,7 +30,14 @@ class Notice
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: false)]
     private \DateTimeInterface $expiration;
 
-    public function getId(): int
+    private ArrayCollection $categories;
+
+    public function __construct()
+    {
+        $this->categories = new ArrayCollection();
+    }
+
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -77,6 +88,47 @@ class Notice
         $this->expiration = $expiration;
 
         return $this;
+    }
+
+    public function getCategories(): ?ArrayCollection
+    {
+        return $this->categories;
+    }
+
+    // Relations
+
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: 'notices')]
+    #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
+    private ?Category $category;
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(Category $category = null): Notice
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function addCategory(Category $category): Notice
+    {
+        $this->categories[] = $this->category;
+
+        return $this;
+    }
+
+    /**
+     * Remove category.
+     *
+     * @param Category $category
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeCategory(Category $category): bool
+    {
+        return $this->categories->removeElement($this->category);
     }
 
 }
