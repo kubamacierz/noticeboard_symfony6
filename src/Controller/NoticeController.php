@@ -2,10 +2,14 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Notice;
 use App\Form\NoticeType;
+use App\Repository\NoticeRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +19,23 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('notice')]
 class NoticeController extends AbstractController
 {
-    #[Route('/', name: 'notice_index', methods: 'GET')]
-    public function index(EntityManagerInterface $entityManager): Response
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
     {
-        $noticesRepo = $entityManager->getRepository(Notice::class);
+        $this->em = $em;
+    }
 
-        $notices = $noticesRepo->findAll();
+    #[Route('/', name: 'notice_index', methods: 'GET')]
+    public function index(
+//        EntityManagerInterface $entityManager
+    NoticeRepository $noticeRepository
+    ): Response
+    {
+//        $noticesRepo = $entityManager->getRepository(Notice::class);
 
+//        $notices = $noticesRepo->findAll();
+        $notices = $noticeRepository->findAll();
 
         return $this->render('notice/index.html.twig', [
             'notices' => $notices,
@@ -29,16 +43,10 @@ class NoticeController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'notice_show', methods: ['GET'])]
-    public function showAction(Notice $notice): Response
-    {
-        return $this->render('notice/show.html.twig', [
-            'notice' => $notice
-        ]);
-    }
+
 
     #[Route('/new', name: 'notice_new', methods: ['GET', 'POST'])]
-    public function newAction(Request $request, EntityManagerInterface $entityManager): Response
+    public function newAction(Request $request): Response
     {
         $notice = new Notice();
 
@@ -68,8 +76,8 @@ class NoticeController extends AbstractController
                 $notice->setImage($newFilename);
             }
 
-            $entityManager->persist($notice);
-            $entityManager->flush();
+            $this->em->persist($notice);
+            $this->em->flush();
 
             return $this->redirectToRoute('notice_show', [
                 'id' => $notice->getId(),
@@ -80,6 +88,15 @@ class NoticeController extends AbstractController
         return $this->render('notice/new.html.twig', [
            'notice' => $notice,
            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}', name: 'notice_show', methods: ['GET'])]
+    public function showAction(Notice $notice): Response
+    {
+        return $this->render('notice/show.html.twig', [
+            'notice' => $notice,
+//            'category' => $notice->getCategory()
         ]);
     }
 

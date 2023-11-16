@@ -44,7 +44,6 @@ class NoticeType extends AbstractType
                     ])
                 ]
             ])
-            ->add('expiration')
             ->add('category', EntityType::class, [
                 'placeholder' => 'Choose Notice Category',
                 'class' => Category::class,
@@ -52,7 +51,9 @@ class NoticeType extends AbstractType
                     return $er->createQueryBuilder('c')->orderBy('c.categoryName', 'ASC');
                 },
                 'choice_label' => 'category_name',
-            ]);
+            ])
+//            ->add('expiration')
+        ;
 
     }
 
