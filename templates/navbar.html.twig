@@ -5,13 +5,18 @@
 {#                {% include "AppBundle:LayoutController:admin_menu.html.twig" %}#}
 {#            {% endif %}#}
             <li class="nav-item">
+                <a class="nav-link" href="{{ path('homepage') }}">Homepage</a>
+            </li>
+            {% if is_granted('ROLE_USER') %}
+            <li class="nav-item">
                 <a class="nav-link" href="{{ path('notice_new') }}">Add new notice</a>
             </li>
-{#            {% if notice is defined %}#}
-{#            <li class="nav-item">#}
-{#                <a href="{{ path('app_notice_shownoticesbyuserid', {'id': notice.userId.user.id}) }}" class="nav-link">Your Notices</a>#}
-{#            </li>#}
-{#            {% endif %}#}
+            {% endif %}
+            {% if app.user %}
+            <li class="nav-item">
+                <a href="{{ path('notices_by_userId', {'id': app.user.id}) }}" class="nav-link">Your Notices</a>
+            </li>
+            {% endif %}
 {#            {% if is_granted("ROLE_ADMIN") == false %}#}
             <li class="nav-item">
                 <a href="{{ path('notice_index')  }}" class="nav-link">All Notices</a>

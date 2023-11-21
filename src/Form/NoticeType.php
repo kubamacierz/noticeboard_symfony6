@@ -51,9 +51,12 @@ class NoticeType extends AbstractType
                     return $er->createQueryBuilder('c')->orderBy('c.categoryName', 'ASC');
                 },
                 'choice_label' => 'category_name',
-            ])
-//            ->add('expiration')
-        ;
+            ]);
+
+        if (in_array( 'ROLE_ADMIN', $options['user']->getRoles())){
+            $builder
+                ->add('expiration');
+        }
 
     }
 
@@ -62,5 +65,6 @@ class NoticeType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Notice::class,
         ]);
+        $resolver->setRequired('user');
     }
 }

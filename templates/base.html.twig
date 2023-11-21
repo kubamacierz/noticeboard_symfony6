@@ -35,19 +35,21 @@
             <div class="jumbotron text-center" style="margin-bottom:0">
                 <h1>Notice Board</h1>
                 <p>
-{#                    {% if app.user.username is defined %}#}
+                    {% if app.user %}
 {#                    <span> <b>{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }}</b>  </span>#}
-{#                <div>#}
-{#                <span class="float-right"><a href="{{ path('fos_user_security_logout') }}"#}
-{#                                             class="nav-link">Log out</a></span>#}
-{#                </div>#}
-{#                {% else %}#}
+                <div>
+                    <span>You are logged in as <b>{{ app.user.username }}</b></span>
+                    <span class="float-right"><a href="{{ path('app_logout') }}"
+                                             class="nav-link">Logout</a></span>
+                </div>
+                {% else %}
                     <span>You are not logged in</span>
                     <div>
                         <span class="float-left"><h5>Welcome to the Notice Board!</h5></span>
-
+                        <span class="float-right"><a href="{{ path('app_login') }}"
+                                                     class="nav-link">Login</a></span>
                     </div>
-{#                {% endif %}#}
+                {% endif %}
                 </p>
                 {#        {% if is_granted("IS_AUTHENTICATED_ANONYMOUSLY") is same as (false) %} #}
                 {#            #}

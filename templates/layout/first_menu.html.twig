@@ -1,0 +1,27 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <ul class="nav nav-pills flex-column">
+{#    {% if is_granted("ROLE_ADMIN") %}#}
+{#        {% include "AppBundle:LayoutController:admin_menu.html.twig" %}#}
+{#    {% endif %}#}
+
+    {% if is_granted("ROLE_USER") == false %}
+{#            <li class="nav-item"><a href="{{ path('app_login') }}" class="nav-link text-danger">Login</a>#}
+{#            </li>#}
+            <li class="nav-item"><a href="{{ path('app_register') }}" class="nav-link text-danger">Register</a></li>
+    {% endif %}
+{#    {% if is_granted("ROLE_USER") %}#}
+{#            <li class="nav-item"><a href="{{ path('notice_new') }}" class="nav-link">Add Notice</a></li>#}
+{#            <li class="nav-item"><a href="{{ path('app_notice_shownoticesbyuserid', { 'id': id }) }}"#}
+{#                                    class="nav-link">Your Notices</a></li>#}
+{#    {% endif %}#}
+{#    {% if is_granted("ROLE_ADMIN") == false %}#}
+            <li class="nav-item"><a href="{{ path('notice_index') }}" class="nav-link">All notices</a>
+            </li>
+{#    {% endif %}#}
+        </ul>
+    </nav>
+{% endblock %}
