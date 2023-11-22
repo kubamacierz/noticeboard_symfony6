@@ -76,13 +76,13 @@ class NoticeController extends AbstractController
             $image = $form['image']->getData();
             if ($image) {
                 try {
-                    $imageService->moveImage($image);
+                    $properFileName = $imageService->moveImage($image, uniqid(), $this->getParameter('images_directory'));
                 } catch (FileException $e) {
                     $e->getMessage();
                     // TODO: handle the exception
                 }
 
-                $notice->setImage($imageService->getNewFilename());
+                $notice->setImage($properFileName);
             }
 
             $this->em->persist($notice);
@@ -121,13 +121,14 @@ class NoticeController extends AbstractController
             $image = $form['image']->getData();
             if ($image) {
                 try {
-                    $imageService->moveImage($image);
+                    $properFileName = $imageService->moveImage($image, uniqid(), $this->getParameter('images_directory'));
                 } catch (FileException $e) {
                     $e->getMessage();
                     // TODO: handle the exception
+                    $session->getFlashBag()->add('fail',$e->getMessage());
                 }
 
-                $notice->setImage($imageService->getNewFilename());
+                $notice->setImage($properFileName);
             }
 
             $this->em->persist($notice);
