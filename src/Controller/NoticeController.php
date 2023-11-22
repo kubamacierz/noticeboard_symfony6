@@ -7,6 +7,7 @@ use App\Entity\Notice;
 use App\Form\NoticeType;
 use App\Repository\NoticeRepository;
 use App\Repository\UserRepository;
+use App\Service\ImageService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
@@ -23,7 +24,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[Route('notice')]
 class NoticeController extends AbstractController
 {
-    private $em;
+    private EntityManagerInterface $em;
 
     public function __construct(EntityManagerInterface $em)
     {
@@ -33,7 +34,7 @@ class NoticeController extends AbstractController
     #[Route('/', name: 'notice_index', methods: 'GET')]
     public function index(NoticeRepository $noticeRepository, ?UserInterface $user): Response
     {
-        if (in_array(strtoupper('ROLE_ADMIN'), $user->getRoles())) {
+        if ($user && in_array(strtoupper('ROLE_ADMIN'), $user->getRoles())) {
             $notices = $noticeRepository->findAll();
         } else {
             $notices = $noticeRepository->getActualNotices();
@@ -55,7 +56,7 @@ class NoticeController extends AbstractController
 
 
     #[Route('/new', name: 'notice_new', methods: ['GET', 'POST'])]
-    public function newAction(Request $request, UserInterface $user = null): Response
+    public function newAction(Request $request, ImageService $imageService, UserInterface $user = null): Response
     {
         if ($user === null || !in_array('ROLE_USER', $user->getRoles())) {
             return $this->redirectToRoute('notice_index');
@@ -63,7 +64,6 @@ class NoticeController extends AbstractController
 
         $notice = new Notice();
         $notice->setUser($user);
-
 
         if(!in_array('ROLE_ADMIN',$user->getRoles() )){
             $notice->setExpiration(new DateTime('+7 days'));
@@ -75,20 +75,14 @@ class NoticeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $image = $form['image']->getData();
             if ($image) {
-                $originalFilename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $image->guessExtension();
                 try {
-                    $image->move(
-                        $this->getParameter('images_directory'),
-                        $newFilename
-                    );
+                    $imageService->moveImage($image);
                 } catch (FileException $e) {
                     $e->getMessage();
+                    // TODO: handle the exception
                 }
 
-
-                $notice->setImage($newFilename);
+                $notice->setImage($imageService->getNewFilename());
             }
 
             $this->em->persist($notice);
@@ -96,7 +90,6 @@ class NoticeController extends AbstractController
 
             return $this->redirectToRoute('notice_show', [
                 'id' => $notice->getId(),
-//                'username' => $user
             ]);
         }
 
@@ -111,7 +104,6 @@ class NoticeController extends AbstractController
     {
         return $this->render('notice/show.html.twig', [
             'notice' => $notice,
-//            'category' => $notice->getCategory()
         ]);
     }
 
@@ -119,7 +111,7 @@ class NoticeController extends AbstractController
      * Displays a form to edit an existing notice entity.
      */
     #[Route('/{id}/edit', name: 'notice_edit', methods: ['GET', 'POST'])]
-    public function editAction(Request $request, Notice $notice, UserInterface $user, SessionInterface $session)
+    public function editAction(Request $request, ImageService $imageService, Notice $notice, UserInterface $user, SessionInterface $session)
     {
 
         $form = $this->createForm(NoticeType::class, $notice, ['user' => $user]);
@@ -128,20 +120,14 @@ class NoticeController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $image = $form['image']->getData();
             if ($image) {
-                $originalFilename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $image->guessExtension();
                 try {
-                    $image->move(
-                        $this->getParameter('images_directory'),
-                        $newFilename
-                    );
+                    $imageService->moveImage($image);
                 } catch (FileException $e) {
                     $e->getMessage();
+                    // TODO: handle the exception
                 }
 
-
-                $notice->setImage($newFilename);
+                $notice->setImage($imageService->getNewFilename());
             }
 
             $this->em->persist($notice);
@@ -192,10 +178,7 @@ class NoticeController extends AbstractController
             }
         }
 
-
-
         return false;
-
     }
 
     #[Route('/user/{id}', name: 'notices_by_userId')]
@@ -203,7 +186,6 @@ class NoticeController extends AbstractController
     {
         $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
 
-//        $user = $this->em->getRepository('AppBundle:User')->find($userId);
         $user = $userRepository->find($userId);
 
         $repo = $this->em->getRepository(Notice::class);
