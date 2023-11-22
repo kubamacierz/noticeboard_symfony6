@@ -110,6 +110,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function addRole(string $role): void
+    {
+        if (false === in_array($role, $this->roles)) {
+            $this->roles[] = $role;
+        }
+    }
+
     /**
      * @see PasswordAuthenticatedUserInterface
      */

@@ -10,25 +10,20 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 #[AsCommand(
     name: 'app:promote',
-    description: 'A command to give specified user a ROLE_ADMIN role'
+    description: 'A command to give ROLE_ADMIN role to a specified user'
 )]
 class MakeUserAdminCommand extends Command
 {
-    private $em;
-    private $serial;
+    private EntityManagerInterface $em;
 
-    public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, string $name = null)
+    public function __construct(EntityManagerInterface $em, string $name = null)
     {
         parent::__construct($name);
 
         $this->em = $em;
-        $this->serial = $serializer;
     }
 
     protected function configure()
@@ -42,10 +37,13 @@ class MakeUserAdminCommand extends Command
 
         $username = $input->getArgument('username');
 
+        /** @var User $user */
+        $user = $this->em->getRepository(User::class)->findOneBy(['username' => $username]);
 
-        $user = $this->em->getRepository(User::class)->findBy(['username' => $username]);
-        var_dump($user);
-//        return Command::SUCCESS;
+        $user->addRole('ROLE_ADMIN');
+        $this->em->flush();
+
+        return Command::SUCCESS;
     }
 
 }
