@@ -7,10 +7,14 @@ use App\Entity\Notice;
 use App\Repository\CategoryRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\LessThan;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class NoticeType extends AbstractType
 {
@@ -54,8 +58,16 @@ class NoticeType extends AbstractType
             ]);
 
         if (in_array( 'ROLE_ADMIN', $options['user']->getRoles())){
-            $builder
-                ->add('expiration');
+//            $builder
+//                ->add('expiration');
+            $builder->add('expiration', DateType::class, [
+                'data' => new \DateTime("+2 weeks"),
+                'constraints' => [
+                    new NotBlank(),
+                    new GreaterThan("today"),
+                    new LessThan("+15 days")
+                ]
+            ]);
         }
 
     }
