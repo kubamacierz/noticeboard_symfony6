@@ -2,11 +2,11 @@
 
 namespace App\Service;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class ImageService extends AbstractController
+class ImageService
 {
-    public function moveImage($image, $uniqid, $dir)
+    public function moveImage(UploadedFile $image, $uniqid, $dir)
     {
         $originalFilename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
         $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
