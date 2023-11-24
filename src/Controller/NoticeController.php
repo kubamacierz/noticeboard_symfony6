@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Notice;
+use App\EventListener\LoginListener;
 use App\Form\NoticeType;
 use App\Repository\NoticeRepository;
 use App\Repository\UserRepository;
-use App\Service\DeleteFormService;
 use App\Service\ImageService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 #[Route('notice')]
 class NoticeController extends AbstractController
@@ -33,7 +34,7 @@ class NoticeController extends AbstractController
     }
 
     #[Route('/', name: 'notice_index', methods: 'GET')]
-    public function index(NoticeRepository $noticeRepository, DeleteFormService $deleteFormService, ?UserInterface $user): Response
+    public function index(NoticeRepository $noticeRepository, ?UserInterface $user, LoginListener $loginListener): Response
     {
         if ($user && in_array(strtoupper('ROLE_ADMIN'), $user->getRoles())) {
             $notices = $noticeRepository->findAll();
@@ -43,7 +44,7 @@ class NoticeController extends AbstractController
 
         $deleteForms = [];
         foreach ($notices as $notice) {
-            $deleteFormView = $deleteFormService->createDeleteForm($notice)->createView();
+            $deleteFormView = $this->createDeleteForm($notice)->createView();
             $deleteForms[] = $deleteFormView;
         }
 
@@ -149,26 +150,25 @@ class NoticeController extends AbstractController
         ]);
     }
 
-//    /**
-//     * Creates a form to delete a notice entity.
-//     *
-//     * @param Notice $notice The notice entity
-//     *
-//     * @return \Symfony\Component\Form\FormInterface The form
-//     */
-//    private function createDeleteForm(Notice $notice)
-//    {
-//        return $this->createFormBuilder()
-//            ->setAction($this->generateUrl('notice_delete', ['id' => $notice->getId()]))
-//            ->setMethod('DELETE')
-//            ->getForm();
-//    }
+    /**
+     * Creates a form to delete a notice entity.
+     *
+     * @param Notice $notice The notice entity
+     *
+     * @return \Symfony\Component\Form\FormInterface The form
+     */
+    private function createDeleteForm(Notice $notice)
+    {
+        return $this->createFormBuilder()
+            ->setAction($this->generateUrl('notice_delete', ['id' => $notice->getId()]))
+            ->setMethod('DELETE')
+            ->getForm();
+    }
 
     #[Route('/{id}', name: 'notice_delete', methods: ['GET', 'POST'])]
-    public function deleteActionIfShouldBeDeleted(Request $request, DeleteFormService $deleteFormService, Notice $notice)
+    public function deleteActionIfShouldBeDeleted(Request $request, Notice $notice)
     {
-//        $form = $this->createDeleteForm($notice);
-        $form = $deleteFormService->createDeleteForm($notice);
+        $form = $this->createDeleteForm($notice);
         $form->handleRequest($request);
 
         if($request->isMethod('POST')) {
@@ -185,7 +185,7 @@ class NoticeController extends AbstractController
     }
 
     #[Route('/user/{id}', name: 'notices_by_userId')]
-    public function showNoticesByUserIdAction(UserRepository $userRepository, DeleteFormService $deleteFormService)
+    public function showNoticesByUserIdAction(UserRepository $userRepository)
     {
         $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
 
@@ -197,7 +197,7 @@ class NoticeController extends AbstractController
 
         $deleteForms = [];
         foreach ($notices as $notice) {
-            $deleteFormView = $deleteFormService->createDeleteForm($notice)->createView();
+            $deleteFormView = $this->createDeleteForm($notice)->createView();
             $deleteForms[] = $deleteFormView;
         }
 

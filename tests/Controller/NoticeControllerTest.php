@@ -15,7 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class NoticeControllerTest extends KernelTestCase
+class NoticeControllerTest extends WebTestCase
 {
 //    public function testCreateDeleteForm()
 //    {
@@ -74,21 +74,21 @@ class NoticeControllerTest extends KernelTestCase
 //        $this->assertEquals('test1', $notice->getTitle());
 //    }
 
-//    /**
-//     * @return void
-//     */
-//    public function testIndex(): void
-//    {
-//        $client = static::createClient();
-////        $client->request('GET', '/');
-//        $crawler = $client->request('GET', '/');
-//        $this->assertPageTitleContains('Welcome!');
-//
-//        $this->assertResponseIsSuccessful();
-//        $this->assertSelectorTextContains('h5', 'Welcome to the Notice Board!');
-////        $this->assertSelectorExists('h4:contains("All Notices")');
-////        $this->assertSelectorTextContains('th', 'Title');
-//    }
+    /**
+     * @return void
+     */
+    public function testIndex(): void
+    {
+        $client = static::createClient();
+//        $client->request('GET', '/');
+        $crawler = $client->request('GET', '/');
+        $this->assertPageTitleContains('Welcome!');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('h5', 'Welcome to the Notice Board!');
+//        $this->assertSelectorExists('h4:contains("All Notices")');
+//        $this->assertSelectorTextContains('th', 'Title');
+    }
 
 
 
