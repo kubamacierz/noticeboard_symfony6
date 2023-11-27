@@ -20,5 +20,3 @@ There is a possibility to add a notice on board which are possible to browse bot
 <p>-hit command "bin/console doctrine:migrations:migrate"</p>
 <p>-hit command "symfony server:start"</p>
 <p>-Have fun using this app</p>
-
-A Symfony project created on August 10, 2019, 10:49 am.
