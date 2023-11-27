@@ -26,7 +26,13 @@
                         {{ notice.description }}
                     {% endif %}
                 </td>
-                <td><a href="{{ asset('uploads/images/' ~ notice.image) }}">View image (jpg)</a></td>
+                <td>
+                    {% if notice.image %}
+                        <a href="{{ asset('uploads/images/' ~ notice.image) }}">View image (jpg)</a>
+                    {% else %}
+                        No image
+                    {% endif %}
+                </td>
                 <td>{{ notice.expiration|date("Y-m-d") }}</td>
                 <td>
                     <a href="{{ path('notice_show', { 'id': notice.id }) }}">Show</a>

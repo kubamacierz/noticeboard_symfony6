@@ -23,11 +23,6 @@ class NoticeRepository extends ServiceEntityRepository
 
     public function getActualNoticesById($id)
     {
-//        return  $this->getEntityManager()->createQuery(
-//            'SELECT n FROM App:Notice n WHERE n.expiration > CURRENT_TIMESTAMP() AND n.user = :id'
-//        )->setParameters(['id' => $id])->getResult();
-
-
         return $this->createQueryBuilder('n')
             ->andWhere('n.expiration > CURRENT_TIMESTAMP() AND n.user = :id')
             ->setParameters(['id' => $id])

@@ -21,21 +21,11 @@ class RegistrationController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager
-//        , FormFactoryBuilderInterface $formFactoryBuilder
-//    , FormBuilderInterface $formBuilder
     ): Response
     {
         $user = new User();
         $user->setLastLogin(new DateTime('now'));
         $form = $this->createForm(RegistrationFormType::class, $user);
-//        $form = $this->container->get('form.factory')->create(RegistrationFormType::class, $user);
-
-//        $form = $formFactoryBuilder->getFormFactory()->create(
-//            RegistrationFormType::class,
-//            $user
-//        );
-
-//        dd($form);
 
         $form->handleRequest($request);
 

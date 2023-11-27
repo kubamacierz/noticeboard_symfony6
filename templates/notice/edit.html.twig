@@ -7,8 +7,8 @@
 
     {{ form_start(form) }}
     {% if is_granted("ROLE_ADMIN") %}
-    {{ form_label(form.expiration, 'Expiration date') }}
-    {{ form_widget(form.expiration, { }) }}
+        {{ form_label(form.expiration, 'Expiration date') }}
+        {{ form_widget(form.expiration, { }) }}
     {% endif %}
     {{ form_row(form.title, {'label': 'Title'}) }}
     {{ form_row(form.description, {'label': 'Content'}) }}

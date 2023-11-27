@@ -2,26 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\Category;
 use App\Entity\Notice;
-use App\EventListener\LoginListener;
+use App\Entity\User;
 use App\Form\NoticeType;
 use App\Repository\NoticeRepository;
 use App\Repository\UserRepository;
 use App\Service\ImageService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 #[Route('notice')]
 class NoticeController extends AbstractController
@@ -34,7 +30,10 @@ class NoticeController extends AbstractController
     }
 
     #[Route('/', name: 'notice_index', methods: 'GET')]
-    public function index(NoticeRepository $noticeRepository, ?UserInterface $user, LoginListener $loginListener): Response
+    public function index(
+        NoticeRepository $noticeRepository,
+        ?UserInterface $user,
+    ): Response
     {
         if ($user && in_array(strtoupper('ROLE_ADMIN'), $user->getRoles())) {
             $notices = $noticeRepository->findAll();
@@ -55,10 +54,14 @@ class NoticeController extends AbstractController
         ]);
     }
 
-
-
     #[Route('/new', name: 'notice_new', methods: ['GET', 'POST'])]
-    public function newAction(Request $request, ImageService $imageService, UserInterface $user = null): Response
+    public function newAction(
+        Request $request,
+        ImageService $imageService,
+        ?UserInterface $user,
+        SessionInterface $session,
+        TokenInterface $token
+    ): Response
     {
         if ($user === null || !in_array('ROLE_USER', $user->getRoles())) {
             return $this->redirectToRoute('notice_index');
@@ -81,7 +84,7 @@ class NoticeController extends AbstractController
                     $properFileName = $imageService->moveImage($image, uniqid(), $this->getParameter('images_directory'));
                 } catch (FileException $e) {
                     $e->getMessage();
-                    // TODO: handle the exception
+                    $session->getFlashBag()->add('fail',$e->getMessage());
                 }
 
                 $notice->setImage($properFileName);
@@ -113,7 +116,12 @@ class NoticeController extends AbstractController
      * Displays a form to edit an existing notice entity.
      */
     #[Route('/{id}/edit', name: 'notice_edit', methods: ['GET', 'POST'])]
-    public function editAction(Request $request, ImageService $imageService, Notice $notice, UserInterface $user, SessionInterface $session)
+    public function editAction(
+        Request $request,
+        ImageService $imageService,
+        Notice $notice,
+        UserInterface $user,
+        SessionInterface $session): Response
     {
 
         $form = $this->createForm(NoticeType::class, $notice, ['user' => $user]);
@@ -126,7 +134,6 @@ class NoticeController extends AbstractController
                     $properFileName = $imageService->moveImage($image, uniqid(), $this->getParameter('images_directory'));
                 } catch (FileException $e) {
                     $e->getMessage();
-                    // TODO: handle the exception
                     $session->getFlashBag()->add('fail',$e->getMessage());
                 }
 
@@ -166,7 +173,7 @@ class NoticeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'notice_delete', methods: ['GET', 'POST'])]
-    public function deleteActionIfShouldBeDeleted(Request $request, Notice $notice)
+    public function deleteActionIfShouldBeDeleted(Request $request, Notice $notice, TokenInterface $token)
     {
         $form = $this->createDeleteForm($notice);
         $form->handleRequest($request);
@@ -177,7 +184,17 @@ class NoticeController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $this->em->remove($notice);
                 $this->em->flush();
-                return $this->redirectToRoute("notice_index");
+
+                $previousRoute = $request->headers->get('referer');
+                if (str_contains($previousRoute, 'notice/user')) {
+
+                    /** @var User $user */
+                    $user = $token->getUser();
+
+                    return $this->redirectToRoute('notices_by_userId', ['id' => $user->getId()]);
+                } else {
+                    return $this->redirectToRoute("notice_index");
+                }
             }
         }
 
@@ -188,12 +205,11 @@ class NoticeController extends AbstractController
     public function showNoticesByUserIdAction(UserRepository $userRepository)
     {
         $userId = $this->container->get('security.token_storage')->getToken()->getUser()->getId();
-
         $user = $userRepository->find($userId);
 
         $repo = $this->em->getRepository(Notice::class);
         /** @var NoticeRepository $repo */
-        $notices = $repo->getActualNoticesById($user);
+        $notices = $repo->getActualNoticesById($userId);
 
         $deleteForms = [];
         foreach ($notices as $notice) {
@@ -210,6 +226,4 @@ class NoticeController extends AbstractController
                 'tableTitle' => 'Your notices'
             ]);
     }
-
-
 }

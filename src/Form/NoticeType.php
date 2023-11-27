@@ -20,17 +20,6 @@ class NoticeType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $forUserDays = 8;
-        $forSuperUserDays = 15;
-
-//        if($options['user']->hasRole('ROLE_ADMIN')===true OR $options['user']->hasRole('ROLE_SUPER_USER')===true){
-//            $days = $forSuperUserDays;
-//            $defaultWeeks = 2;
-//        } elseif ($options['user']->hasRole('ROLE_USER')===true) {
-//            $days = $forUserDays;
-//            $defaultWeeks = 1;
-//        }
-
         $builder
             ->add('title')
             ->add('description')
@@ -58,8 +47,6 @@ class NoticeType extends AbstractType
             ]);
 
         if (in_array( 'ROLE_ADMIN', $options['user']->getRoles())){
-//            $builder
-//                ->add('expiration');
             $builder->add('expiration', DateType::class, [
                 'data' => new \DateTime("+2 weeks"),
                 'constraints' => [
