@@ -3,7 +3,7 @@
 {% block body %}
     {% include "navbar.html.twig" %}
 
-    <h4>Add Your Notice</h4>
+    <h4>Edit Notice</h4>
 
     {{ form_start(form) }}
     {% if is_granted("ROLE_ADMIN") %}
@@ -14,8 +14,14 @@
     {{ form_row(form.description, {'label': 'Content'}) }}
     {{ form_row(form.image, {'label': 'Insert picture'}) }}
     {{ form_row(form.category, {'label': 'Category'}) }}
-    <input type="submit" value="Add" />
+    <input type="submit" value="Edit" />
     {{ form_end(form) }}
+
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
 
     {% for message in app.flashes('fail') %}
         <div class="alert alert-success">

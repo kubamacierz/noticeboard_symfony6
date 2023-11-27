@@ -131,4 +131,27 @@ class Notice
         return $this->categories->removeElement($this->category);
     }
 
+    // Relations
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'notices')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id')]
+    private ?User $user;
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function getUserId(): ?Uuid
+    {
+        return $this->getUser()->getId();
+    }
+
+    public function setUser(?User $user): Notice
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+
 }
