@@ -19,4 +19,4 @@ There is a possibility to add a notice on board which are possible to browse bot
 <p>-hit command "bin/console doctrine:migrations:diff"</p>
 <p>-hit command "bin/console doctrine:migrations:migrate"</p>
 <p>-hit command "symfony server:start"</p>
-<p>-Have fun using this app</p>
+<p>-Have fun using this app.</p>
